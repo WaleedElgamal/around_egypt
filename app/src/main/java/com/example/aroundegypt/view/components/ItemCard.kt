@@ -54,13 +54,10 @@ fun ItemCard(
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Box {
-            AsyncImage(
-                model = experience.cover_photo,
-                contentDescription = "Experience Image",
-                contentScale = ContentScale.Crop,
+            LoadNetworkImage(
+                imageUrl = experience.cover_photo,
                 modifier = Modifier.height(180.dp)
             )
-
 
             if (experience.recommended == 1) {
                 RecommendedBadge(modifier = Modifier.align(Alignment.TopStart))
@@ -77,6 +74,18 @@ fun ItemCard(
 
         ExperienceFooter(experience, onLike)
     }
+}
+
+@Composable
+fun LoadNetworkImage(imageUrl: String?,modifier: Modifier = Modifier) {
+    AsyncImage(
+        model = imageUrl,
+        contentDescription = "Experience Image",
+        contentScale = ContentScale.Crop,
+        error = painterResource(id = R.drawable.ic_fallback_image),
+        placeholder = painterResource(id =  R.drawable.ic_fallback_image),
+        modifier = modifier
+    )
 }
 
 @Composable
