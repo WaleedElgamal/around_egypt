@@ -9,5 +9,6 @@ data class Experience(
     var cover_photo: String,
     var description: String,
     var views_no: Int,
-    var likes_no: Int
+    var likes_no: Int,
+    var recommended: Int
 )

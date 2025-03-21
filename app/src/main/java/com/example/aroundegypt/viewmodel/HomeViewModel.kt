@@ -60,8 +60,10 @@ class HomeViewModel: ViewModel() {
         _isSearching.value = true
 
         viewModelScope.launch {
+            _isLoading.postValue(true)
             val experiences = experienceRepository.fetchSearchExperiences(query)
             _searchExperiences.postValue(experiences)
+            _isLoading.postValue(false)
         }
     }
 
