@@ -1,15 +1,18 @@
 package com.example.aroundegypt.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aroundegypt.data.model.Experience
 import com.example.aroundegypt.data.repository.ExperienceRepository
 import kotlinx.coroutines.launch
 
-class HomeViewModel: ViewModel() {
-    val experienceRepository : ExperienceRepository = ExperienceRepository()
+class HomeViewModel(application: Application): AndroidViewModel(application) {
+    private val context = getApplication<Application>().applicationContext
+
+    val experienceRepository : ExperienceRepository = ExperienceRepository(context)
 
     private val _recommendedExperiences = MutableLiveData<List<Experience>>()
     val recommendedExperiences: LiveData<List<Experience>> = _recommendedExperiences
@@ -38,11 +41,13 @@ class HomeViewModel: ViewModel() {
             _isLoading.postValue(true)
             val experiences = experienceRepository.fetchRecommendedExperiences()
             _recommendedExperiences.postValue(experiences)
+            _isLoading.postValue(false)
         }
     }
 
     fun fetchRecentExperiences(){
         viewModelScope.launch {
+            _isLoading.postValue(true)
             val experiences = experienceRepository.fetchRecentExperiences()
             _recentExperiences.postValue(experiences)
             _isLoading.postValue(false)
@@ -52,12 +57,12 @@ class HomeViewModel: ViewModel() {
 
     fun search(query: String) {
         if (query.isBlank()) {
-            _isSearching.value = false
+            _isSearching.postValue(false)
             _searchExperiences.postValue(emptyList())
             return
         }
 
-        _isSearching.value = true
+        _isSearching.postValue(true)
 
         viewModelScope.launch {
             _isLoading.postValue(true)
@@ -68,7 +73,7 @@ class HomeViewModel: ViewModel() {
     }
 
     fun clearSearch() {
-        _isSearching.value = false
+        _isSearching.postValue(false)
         _searchExperiences.postValue(emptyList())
     }
 
