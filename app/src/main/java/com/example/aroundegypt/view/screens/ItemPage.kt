@@ -24,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -128,13 +130,15 @@ fun TitleSection(experience: Experience, onLike: (String) -> Unit) {
 @Composable
 fun DescriptionSection(experience: Experience) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
-        Text(text = "Description", fontWeight = FontWeight.Bold, fontSize = 22.sp)
+        Text(text = "Description", fontWeight = FontWeight.Bold, fontSize = 22.sp,
+            modifier = Modifier.semantics { contentDescription = "Description Header" })
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = experience.description,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.semantics { contentDescription = "Experience Description" }
         )
     }
 }

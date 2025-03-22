@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
@@ -40,7 +41,9 @@ fun SearchBar(
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray) },
         trailingIcon = {
             if (searchQuery.isNotEmpty()) {
-                IconButton(onClick = {
+                IconButton(
+                    modifier = Modifier.testTag("ClearSearchButton"),
+                    onClick = {
                     searchQuery = ""
                     onClearSearch()
                     keyboardController?.hide()
@@ -52,7 +55,9 @@ fun SearchBar(
         },
         singleLine = true,
         modifier = Modifier
-            .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(12.dp)),
+            .testTag("SearchBar")
+            .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(12.dp))
+        ,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent,
