@@ -60,7 +60,9 @@ class ExperienceRepository(
                 val response = apiService.searchExperiences(searchText = title)
                 response.data
             }
-            emptyList()
+            else{
+                emptyList()
+            }
         }catch (e: Exception){
 //            Log.e(TAG, "Error fetching search experiences: ${e.message}", e)
             emptyList()
