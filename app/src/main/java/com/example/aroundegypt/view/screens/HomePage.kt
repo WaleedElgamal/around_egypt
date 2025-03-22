@@ -1,5 +1,6 @@
 package com.example.aroundegypt.view.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +38,14 @@ fun HomePage(viewModel: HomeViewModel) {
     val searchResults by viewModel.searchExperiences.observeAsState(emptyList())
     val isSearching by viewModel.isSearching.observeAsState(false)
     val isLoading by viewModel.isLoading.observeAsState(false)
+
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedExperience by remember { mutableStateOf<Experience?>(null) }
+
+    val onItemClicked: (Experience) -> Unit = { experience ->
+        selectedExperience = experience
+        showDialog = true
+    }
 
     Scaffold(
         containerColor = Color.White,
@@ -57,14 +69,25 @@ fun HomePage(viewModel: HomeViewModel) {
                         LoadingIndicator()
                     } else {
                         if (isSearching) {
-                            SearchResults(searchResults, viewModel)
+                            SearchResults(searchResults, viewModel, onItemClicked)
                         } else {
-                            MainContent(recommended, recent, viewModel)
+                            MainContent(recommended, recent, viewModel, onItemClicked)
                         }
                     }
                 }
             }
         }
+    }
+
+    if (showDialog && selectedExperience != null) {
+        ItemDialog(
+            experience = selectedExperience!!,
+            onClickOutside = { showDialog = false },
+            onLike = {
+                id -> viewModel.likeExperience(id)
+                selectedExperience = selectedExperience?.copy(likes_no = selectedExperience?.likes_no?.plus(1)!!)
+            }
+        )
     }
 }
 
@@ -80,12 +103,16 @@ fun LoadingIndicator() {
 }
 
 @Composable
-fun SearchResults(searchResults: List<Experience>, viewModel: HomeViewModel) {
+fun SearchResults(
+    searchResults: List<Experience>,
+    viewModel: HomeViewModel,
+    onItemClicked: (Experience) -> Unit
+) {
     TitleHeader(title = "Search Results")
     if (searchResults.isEmpty()) {
         NoResultsFound()
     } else {
-        ExperienceListVertical(searchResults, viewModel)
+        ExperienceListVertical(searchResults, viewModel, onItemClicked)
     }
 }
 
@@ -101,39 +128,52 @@ fun NoResultsFound() {
 }
 
 @Composable
-fun MainContent(recommended: List<Experience>, recent: List<Experience>, viewModel: HomeViewModel) {
+fun MainContent(
+    recommended: List<Experience>,
+    recent: List<Experience>,
+    viewModel: HomeViewModel,
+    onItemClicked: (Experience) -> Unit
+) {
     TitleHeader(title = "Welcome!")
     DescriptionHeader()
 
     TitleHeader(title = "Recommended Experiences")
-    ExperienceListHorizontal(recommended, viewModel)
+    ExperienceListHorizontal(recommended, viewModel, onItemClicked)
 
     TitleHeader(title = "Most Recent")
-    ExperienceListVertical(recent, viewModel)
+    ExperienceListVertical(recent, viewModel, onItemClicked)
 }
 
 
 @Composable
-fun ExperienceListHorizontal( experiences: List<Experience>, viewModel: HomeViewModel)
-{
+fun ExperienceListHorizontal(
+    experiences: List<Experience>,
+    viewModel: HomeViewModel,
+    onItemClicked: (Experience) -> Unit
+) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         items(experiences) { experience ->
-            ItemCard(experience, onLike = { id -> viewModel.likeExperience(id)})
+            ItemCard(experience, onLike = { id -> viewModel.likeExperience(id)}, modifier = Modifier
+                .clickable { onItemClicked(experience) })
         }
     }
 }
 
 @Composable
-fun ExperienceListVertical(experiences: List<Experience>, viewModel: HomeViewModel)
-{
+fun ExperienceListVertical(
+    experiences: List<Experience>,
+    viewModel: HomeViewModel,
+    onItemClicked: (Experience) -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         experiences.forEach { experience ->
-            ItemCard(experience = experience, onLike = { id -> viewModel.likeExperience(id)})
+            ItemCard(experience = experience, onLike = { id -> viewModel.likeExperience(id)}, modifier = Modifier
+                .clickable { onItemClicked(experience) })
         }
     }
 }
