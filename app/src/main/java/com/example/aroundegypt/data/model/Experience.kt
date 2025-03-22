@@ -1,10 +1,14 @@
 package com.example.aroundegypt.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 data class ApiResponse(
     val data: List<Experience>
 )
+@Entity(tableName = "experiences")
 data class Experience(
-    val id: String,
+    @PrimaryKey val id: String,
     var title: String,
     var cover_photo: String,
     var description: String,
