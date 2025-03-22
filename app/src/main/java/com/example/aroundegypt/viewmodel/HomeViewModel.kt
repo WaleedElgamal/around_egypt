@@ -10,9 +10,7 @@ import com.example.aroundegypt.data.repository.ExperienceRepository
 import kotlinx.coroutines.launch
 
 class HomeViewModel(application: Application): AndroidViewModel(application) {
-    private val context = getApplication<Application>().applicationContext
-
-    val experienceRepository : ExperienceRepository = ExperienceRepository(context)
+    var experienceRepository : ExperienceRepository = ExperienceRepository(application)
 
     private val _recommendedExperiences = MutableLiveData<List<Experience>>()
     val recommendedExperiences: LiveData<List<Experience>> = _recommendedExperiences
@@ -40,7 +38,9 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             val experiences = experienceRepository.fetchRecommendedExperiences()
-            _recommendedExperiences.postValue(experiences)
+            if (_recommendedExperiences.value != experiences) {
+                _recommendedExperiences.postValue(experiences)
+            }
             _isLoading.postValue(false)
         }
     }
@@ -49,7 +49,9 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             val experiences = experienceRepository.fetchRecentExperiences()
-            _recentExperiences.postValue(experiences)
+            if (_recentExperiences.value != experiences) {
+                _recentExperiences.postValue(experiences)
+            }
             _isLoading.postValue(false)
 
         }
@@ -67,7 +69,9 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
         viewModelScope.launch {
             _isLoading.postValue(true)
             val experiences = experienceRepository.fetchSearchExperiences(query)
-            _searchExperiences.postValue(experiences)
+            if(_searchExperiences.value!=experiences){
+                _searchExperiences.postValue(experiences)
+            }
             _isLoading.postValue(false)
         }
     }
@@ -82,12 +86,18 @@ class HomeViewModel(application: Application): AndroidViewModel(application) {
             val response = experienceRepository.likeExperience(id)
 
             if (response.isSuccessful) {
-                _recommendedExperiences.value = _recommendedExperiences.value?.map { exp ->
+                val recommended = _recommendedExperiences.value?.map { exp ->
                     if (exp.id == id) exp.copy(likes_no = exp.likes_no + 1) else exp
                 }
+                if(recommended!=null){
+                _recommendedExperiences.postValue(recommended)
+                }
 
-                _recentExperiences.value = _recentExperiences.value?.map { exp ->
+                val recent = _recentExperiences.value?.map { exp ->
                     if (exp.id == id) exp.copy(likes_no = exp.likes_no + 1) else exp
+                }
+                if(recent!=null){
+                    _recentExperiences.postValue(recent)
                 }
 
             }
